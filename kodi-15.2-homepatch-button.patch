@@ -1,0 +1,21 @@
+From 17d1093236671eaf9644853a5ec2958a2278d1c2 Mon Sep 17 00:00:00 2001
+From: Mauro Ribeiro <mauro.ribeiro@hardkernel.com>
+Date: Fri, 7 Nov 2014 14:23:36 +1030
+Subject: [PATCH] [kodi] misc patches
+
+---
+ xbmc/input/linux/LinuxInputDevices.cpp             | 1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/xbmc/input/linux/LinuxInputDevices.cpp b/xbmc/input/linux/LinuxInputDevices.cpp
+index ee21474..5dcaf69 100644
+--- a/xbmc/input/linux/LinuxInputDevices.cpp
++++ b/xbmc/input/linux/LinuxInputDevices.cpp
+@@ -242,6 +242,7 @@ KeyMap keyMap[] = {
+   { KEY_RECORD        , XBMCK_RECORD      },
+   { KEY_REWIND        , XBMCK_REWIND      },
+   { KEY_PHONE         , XBMCK_PHONE       },
++  { KEY_HOMEPAGE      , XBMCK_BROWSER_HOME},
+   { KEY_REFRESH       , XBMCK_SHUFFLE     },
+   { KEY_SCROLLUP      , XBMCK_PAGEUP      },
+   { KEY_SCROLLDOWN    , XBMCK_PAGEDOWN    },

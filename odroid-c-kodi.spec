@@ -4,18 +4,19 @@
 # use the line below for pre-releases
 #global DIRVERSION %{version}%{PRERELEASE}
 %global _hardened_build 1
+%global realname kodi
 
-Name: kodi
+Name: odroid-c-%{realname}
 Version: 16.1
 Release: 2%{?dist}
-Summary: Media center
+Summary: Media center (Modified for ODROID-C)
 
 License: GPLv2+ and GPLv3+ and LGPLv2+ and BSD and MIT
 # Main binary and all supporting files are GPLv2+/GPLv3+
 # Some supporting libraries use the LGPL / BSD / MIT license
 Group: Applications/Multimedia
 URL: http://www.kodi.tv/
-Source0: %{name}-%{DIRVERSION}-patched.tar.xz
+Source0: %{realname}-%{DIRVERSION}-patched.tar.xz
 # kodi contains code that we cannot ship, as well as redundant private
 # copies of upstream libraries that we already distribute.  Therefore
 # we use this script to remove the code before shipping it.
@@ -41,6 +42,18 @@ Patch5: ffmpeg-2.9.patch
 
 Patch6: gcc6.patch
 
+# Patches for ODROID-C
+Patch20: kodi-16.1-arm-enable-cpu-freq.patch
+Patch21: kodi-15.2-amlogic-enable-passthrough.patch
+Patch22: kodi-15.2-amlogic-reduce-alsa-buffer.patch
+Patch23: kodi-16.1-remove-amplayer-amffmpeg-dependency.patch
+Patch24: kodi-15.2-amlcodec-fixes.patch
+Patch25: kodi-15.2-amlogic-enable-realview.patch
+Patch26: kodi-15.2-homepatch-button.patch
+
+Provides: %{realname} = %{version}-%{release}
+Provides: %{realname}%{_isa} = %{version}-%{release}
+
 # Optional deps (not in EPEL)
 %if 0%{?fedora}
 # (libbluray in EPEL 6 is too old.)
@@ -54,6 +67,15 @@ Patch6: gcc6.patch
 
 %ifarch x86_64 i686
 %global _with_crystalhd 1
+%endif
+
+%ifarch armv7hnl
+%global _with_amcodec 1
+%global _sysisa (armv7hl-%{__isa_bits})
+%else
+%if "0%{?_isa}" != "0"
+%global _sysisa %{_isa}
+%endif
 %endif
 
 # Upstream does not support ppc64
@@ -160,6 +182,9 @@ BuildRequires: mesa-libEGL-devel
 BuildRequires: mesa-libGLES-devel
 %endif
 BuildRequires: nasm
+%if 0%{?_with_amcodec}
+BuildRequires: odroid-c-aml-libs-devel
+%endif
 BuildRequires: pcre-devel
 BuildRequires: pixman-devel
 BuildRequires: pulseaudio-libs-devel
@@ -184,17 +209,17 @@ Requires: google-roboto-fonts
 # as they are dynamically loaded via XBMC's arcane
 # pseudo-DLL loading scheme (sigh)
 %if 0%{?_with_libbluray}
-Requires: libbluray%{?_isa}
+Requires: libbluray%{?_sysisa}
 %endif
 %if 0%{?_with_libcec}
-Requires: libcec%{?_isa} >= 3.0.0
+Requires: libcec%{?_sysisa} >= 3.0.0
 %endif
 %if 0%{?_with_crystalhd}
-Requires: libcrystalhd%{?_isa}
+Requires: libcrystalhd%{?_sysisa}
 %endif
-Requires: libmad%{?_isa}
-Requires: librtmp%{?_isa}
-Requires: shairplay-libs%{?_isa}
+Requires: libmad%{?_sysisa}
+Requires: librtmp%{?_sysisa}
+Requires: shairplay-libs%{?_sysisa}
 
 # needed when doing a minimal install, see
 # https://bugzilla.rpmfusion.org/show_bug.cgi?id=1844
@@ -203,7 +228,7 @@ Requires: xorg-x11-utils
 
 # This is just symlinked to, but needed both at build-time
 # and for installation
-Requires: python-pillow%{?_isa}
+Requires: python-pillow%{?_sysisa}
 
 
 %description
@@ -212,6 +237,9 @@ Kodi can play a spectrum of of multimedia formats, and featuring playlist,
 audio visualizations, slideshow, and weather forecast functions, together
 third-party plugins.
 
+This version of Kodi has been modified specifically to run on Hardkernel's
+ODROID-C.
+
 
 %package devel
 Summary: Development files needed to compile C programs against kodi
@@ -219,6 +247,9 @@ Group: Development/Libraries
 Requires: %{name}%{?_isa} = %{version}-%{release}
 Obsoletes: xbmc-devel < 14.0
 Provides: xbmc-devel = %{version}
+
+Provides: %{realname}-devel = %{version}-%{release}
+Provides: %{realname}-devel%{_isa} = %{version}-%{release}
 
 %description devel
 Kodi is a free cross-platform media-player jukebox and entertainment hub.
@@ -231,6 +262,9 @@ Summary: Media center event client remotes
 Obsoletes: xbmc-eventclients < 14.0
 Provides: xbmc-eventclients = %{version}
 
+Provides: %{realname}-eventclients = %{version}-%{release}
+Provides: %{realname}-eventclients%{_isa} = %{version}-%{release}
+
 %description eventclients
 This package contains support for using Kodi with the PS3 Remote, the Wii
 Remote, a J2ME based remote and the command line xbmc-send utility.
@@ -242,13 +276,16 @@ Requires:	%{name}-devel%{?_isa} = %{version}-%{release}
 Obsoletes: xbmc-eventclients-devel < 14.0
 Provides:  xbmc-eventclients-devel = %{version}
 
+Provides: %{realname}-eventclients-devel = %{version}-%{release}
+Provides: %{realname}-eventclients-devel%{_isa} = %{version}-%{release}
+
 %description eventclients-devel
 This package contains the development header files for the eventclients
 library.
 
 
 %prep
-%setup -q -n %{name}-%{DIRVERSION}
+%setup -q -n %{realname}-%{DIRVERSION}
 %patch1 -p1
 %patch2 -p1
 %patch3 -p0
@@ -257,6 +294,14 @@ library.
 %if 0%{?fedora} >= 24
 %patch6 -p1
 %endif
+
+%patch20 -p1
+%patch21 -p1
+%patch22 -p1
+%patch23 -p1
+%patch24 -p1
+%patch25 -p1
+%patch26 -p1
 
 
 %build
@@ -304,6 +349,9 @@ chmod +x bootstrap
 %endif
 %ifarch armv7hnl
 --enable-neon \
+%endif
+%if 0%{?_with_amcodec}
+--enable-codec=amcodec \
 %endif
 %endif
 CFLAGS="$RPM_OPT_FLAGS -fPIC -I/usr/include/afpfs-ng/ -I/usr/include/samba-4.0/ -D__STDC_CONSTANT_MACROS" \
@@ -415,6 +463,9 @@ fi
 
 
 %changelog
+* Sun Oct 16 2016 Scott K Logan <logans@cottsay.net>
+- Reconfigure package for Hardkernel ODROID-C
+
 * Wed Jun 22 2016 Nicolas Chauvet <kwizart@gmail.com> - 16.1-2
 - Fix build - patches by Michael Kuhn <suraia@ikkoku.de>
 

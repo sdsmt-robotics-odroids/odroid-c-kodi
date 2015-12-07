@@ -1,0 +1,25 @@
+From 014cbd40825409cd17daa2aed020e3c8180834fc Mon Sep 17 00:00:00 2001
+From: Mauro Ribeiro <mauro.ribeiro@hardkernel.com>
+Date: Wed, 4 Feb 2015 05:52:18 -0200
+Subject: [PATCH] [aml]: try to enable RealView support
+
+---
+ xbmc/cores/dvdplayer/DVDCodecs/Video/DVDVideoCodecAmlogic.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/xbmc/cores/dvdplayer/DVDCodecs/Video/DVDVideoCodecAmlogic.cpp b/xbmc/cores/dvdplayer/DVDCodecs/Video/DVDVideoCodecAmlogic.cpp
+index d287d67..9e96d13 100644
+--- a/xbmc/cores/dvdplayer/DVDCodecs/Video/DVDVideoCodecAmlogic.cpp
++++ b/xbmc/cores/dvdplayer/DVDCodecs/Video/DVDVideoCodecAmlogic.cpp
+@@ -118,9 +118,9 @@ bool CDVDVideoCodecAmlogic::Open(CDVDStreamInfo &hints, CDVDCodecOptions &option
+     case AV_CODEC_ID_RV20:
+     case AV_CODEC_ID_RV30:
+     case AV_CODEC_ID_RV40:
+-      // m_pFormatName = "am-rv";
++      m_pFormatName = "am-rv";
+       // rmvb is not handled well by amcodec
+-      return false;
++      //return false;
+       break;
+     case AV_CODEC_ID_VC1:
+       m_pFormatName = "am-vc1";
