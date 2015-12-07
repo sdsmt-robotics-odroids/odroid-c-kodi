@@ -1,0 +1,36 @@
+diff -uNr a/xbmc/cores/AudioEngine/Engines/ActiveAE/ActiveAESink.cpp b/xbmc/cores/AudioEngine/Engines/ActiveAE/ActiveAESink.cpp
+--- a/xbmc/cores/AudioEngine/Engines/ActiveAE/ActiveAESink.cpp	2016-06-30 12:18:13.000000000 -0700
++++ b/xbmc/cores/AudioEngine/Engines/ActiveAE/ActiveAESink.cpp	2016-10-16 14:10:23.809138246 -0700
+@@ -103,6 +103,7 @@
+ 
+ bool CActiveAESink::HasPassthroughDevice()
+ {
++#ifndef HAS_LIBAMCODEC
+   for (AESinkInfoList::iterator itt = m_sinkInfoList.begin(); itt != m_sinkInfoList.end(); ++itt)
+   {
+     for (AEDeviceInfoList::iterator itt2 = itt->m_deviceInfoList.begin(); itt2 != itt->m_deviceInfoList.end(); ++itt2)
+@@ -113,10 +114,14 @@
+     }
+   }
+   return false;
++#else
++  return true;
++#endif
+ }
+ 
+ bool CActiveAESink::SupportsFormat(const std::string &device, AEAudioFormat &format)
+ {
++#ifndef HAS_LIBAMCODEC
+   std::string dev = device;
+   std::string dri;
+ 
+@@ -195,6 +200,9 @@
+     }
+   }
+   return false;
++#else
++  return true;
++#endif
+ }
+ 
+ bool CActiveAESink::NeedIECPacking()

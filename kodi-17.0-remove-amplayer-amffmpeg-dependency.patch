@@ -1,0 +1,71 @@
+From e695615e487853f0d441cf9f845fd4bbf7ea6166 Mon Sep 17 00:00:00 2001
+From: Alex Deryskyba <alex@codesnake.com>
+Date: Sun, 24 Aug 2014 21:39:58 +0300
+Subject: [PATCH] Remove dependency on libamplayer and amffmpeg
+
+---
+ xbmc/cores/VideoPlayer/DVDCodecs/Video/AMLCodec.cpp            | 10 ++--------
+ .../cores/VideoPlayer/DVDCodecs/Video/DVDVideoCodecAmlogic.cpp |  3 ---
+ 2 files changed, 2 insertions(+), 11 deletions(-)
+
+diff --git a/xbmc/cores/VideoPlayer/DVDCodecs/Video/AMLCodec.cpp b/xbmc/cores/VideoPlayer/DVDCodecs/Video/AMLCodec.cpp
+index aa30474..6df01e9 100644
+--- a/xbmc/cores/VideoPlayer/DVDCodecs/Video/AMLCodec.cpp
++++ b/xbmc/cores/VideoPlayer/DVDCodecs/Video/AMLCodec.cpp
+@@ -56,9 +56,9 @@ extern "C" {
+ #include <sys/ioctl.h>
+ #include <linux/videodev2.h>
+ 
+-// amcodec include
+ extern "C" {
+ #include <amcodec/codec.h>
++#include "libavutil/avutil.h"
+ }  // extern "C"
+ 
+ class PosixFile
+@@ -137,8 +137,7 @@ public:
+ 
+ class DllLibAmCodec : public DllDynamic, DllLibamCodecInterface
+ {
+-  // libamcodec is static linked into libamplayer.so or libamcodec.so
+-  DECLARE_DLL_WRAPPER(DllLibAmCodec, "libamplayer.so")
++  DECLARE_DLL_WRAPPER(DllLibAmCodec, "libamcodec.so")
+ 
+   DEFINE_METHOD1(int, codec_init,               (codec_para_t *p1))
+   DEFINE_METHOD1(int, codec_close,              (codec_para_t *p1))
+@@ -434,7 +433,6 @@ static vformat_t codecid_to_vformat(enum AVCodecID id)
+     case AV_CODEC_ID_H263I:
+     case AV_CODEC_ID_MSMPEG4V2:
+     case AV_CODEC_ID_MSMPEG4V3:
+-    case AV_CODEC_ID_FLV1:
+       format = VFORMAT_MPEG4;
+       break;
+     case AV_CODEC_ID_RV10:
+@@ -1252,10 +1250,6 @@ int set_header_info(am_private_t *para)
+       {
+         return divx3_prefix(pkt);
+       }
+-      else if (para->video_codec_type == VIDEO_DEC_FORMAT_H263)
+-      {
+-        return PLAYER_UNSUPPORT;
+-      }
+     } else if (para->video_format == VFORMAT_VC1) {
+         if (para->video_codec_type == VIDEO_DEC_FORMAT_WMV3) {
+             unsigned i, check_sum = 0, data_len = 0;
+diff --git a/xbmc/cores/VideoPlayer/DVDCodecs/Video/DVDVideoCodecAmlogic.cpp b/xbmc/cores/VideoPlayer/DVDCodecs/Video/DVDVideoCodecAmlogic.cpp
+index 80f25dd..42e15e5 100644
+--- a/xbmc/cores/VideoPlayer/DVDCodecs/Video/DVDVideoCodecAmlogic.cpp
++++ b/xbmc/cores/VideoPlayer/DVDCodecs/Video/DVDVideoCodecAmlogic.cpp
+@@ -134,9 +134,6 @@ bool CDVDVideoCodecAmlogic::Open(CDVDStreamInfo &hints, CDVDCodecOptions &option
+       // amcodec can't handle h263
+       return false;
+       break;
+-    case AV_CODEC_ID_FLV1:
+-      m_pFormatName = "am-flv1";
+-      break;
+     case AV_CODEC_ID_RV10:
+     case AV_CODEC_ID_RV20:
+     case AV_CODEC_ID_RV30:
+-- 
+2.5.5
+

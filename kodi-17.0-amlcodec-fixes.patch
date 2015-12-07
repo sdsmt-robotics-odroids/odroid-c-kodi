@@ -1,0 +1,41 @@
+From eae5a2df96522c17fa11fc97a7208e96f03692a4 Mon Sep 17 00:00:00 2001
+From: Mauro Ribeiro <mauro.ribeiro@hardkernel.com>
+Date: Fri, 7 Nov 2014 14:22:03 +1030
+Subject: [PATCH] [aml] mix fix ups
+
+---
+ xbmc/cores/VideoPlayer/DVDCodecs/Video/AMLCodec.cpp | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/xbmc/cores/VideoPlayer/DVDCodecs/Video/AMLCodec.cpp b/xbmc/cores/VideoPlayer/DVDCodecs/Video/AMLCodec.cpp
+index 6df01e9..e1ac896 100644
+--- a/xbmc/cores/VideoPlayer/DVDCodecs/Video/AMLCodec.cpp
++++ b/xbmc/cores/VideoPlayer/DVDCodecs/Video/AMLCodec.cpp
+@@ -281,8 +281,9 @@ public:
+ // same as AV_NOPTS_VALUE
+ #define INT64_0         INT64_C(0x8000000000000000)
+ 
+-#define EXTERNAL_PTS    (1)
+-#define SYNC_OUTSIDE    (2)
++#define EXTERNAL_PTS        (1)
++#define SYNC_OUTSIDE        (2)
++#define USE_IDR_FRAMERATE   (4)
+ 
+ // missing tags
+ #define CODEC_TAG_VC_1  (0x312D4356)
+@@ -1563,10 +1564,10 @@ bool CAMLCodec::OpenDecoder(CDVDStreamInfo &hints)
+     case VFORMAT_H264:
+     case VFORMAT_H264MVC:
+       am_private->gcodec.format = VIDEO_DEC_FORMAT_H264;
+-      am_private->gcodec.param  = (void*)EXTERNAL_PTS;
++      am_private->gcodec.param  = (void*)(EXTERNAL_PTS | USE_IDR_FRAMERATE);
+       // h264 in an avi file
+       if (m_hints.ptsinvalid)
+-        am_private->gcodec.param = (void*)(EXTERNAL_PTS | SYNC_OUTSIDE);
++        am_private->gcodec.param = (void*)(EXTERNAL_PTS | SYNC_OUTSIDE | USE_IDR_FRAMERATE);
+       break;
+     case VFORMAT_H264_4K2K:
+       am_private->gcodec.format = VIDEO_DEC_FORMAT_H264_4K2K;
+-- 
+2.5.5
+
