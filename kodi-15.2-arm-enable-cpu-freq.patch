@@ -1,0 +1,13 @@
+--- a/xbmc/windows/GUIWindowSystemInfo.cpp      2015-01-29 14:57:10.000000000 -0800
++++ b/xbmc/windows/GUIWindowSystemInfo.cpp      2015-02-15 17:05:03.086149000 -0800
+@@ -158,10 +158,8 @@
+     SET_CONTROL_LABEL(i++, g_sysinfo.GetCPUSerial());
+ #endif
+     SetControlLabel(i++, "%s %s", 22011, SYSTEM_CPU_TEMPERATURE);
+-#if !defined(__arm__) || defined(TARGET_RASPBERRY_PI)
+     SetControlLabel(i++, "%s %s", 13284, SYSTEM_CPUFREQUENCY);
+ #endif
+-#endif
+ #if !(defined(__arm__) && defined(TARGET_LINUX))
+     SetControlLabel(i++, "%s %s", 13271, SYSTEM_CPU_USAGE);
+ #endif

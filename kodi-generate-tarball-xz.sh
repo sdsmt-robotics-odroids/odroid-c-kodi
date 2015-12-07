@@ -66,6 +66,9 @@ do
     rm -r tools/$i
 done
 
+# We have a patch that removes our dependency on libamplayer
+rm -r tools/depends/target/libamplayer
+
 popd
 
 # repack

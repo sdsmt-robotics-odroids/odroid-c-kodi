@@ -1,0 +1,22 @@
+From 286cbd51578cdf436e4ebf6cd89755e437857c0b Mon Sep 17 00:00:00 2001
+From: Mauro Ribeiro <mauro.ribeiro@hardkernel.com>
+Date: Sat, 14 Feb 2015 11:58:12 -0200
+Subject: [PATCH] [aml]: attempt to fix audio passthru
+
+---
+ xbmc/utils/AMLUtils.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/xbmc/utils/AMLUtils.cpp b/xbmc/utils/AMLUtils.cpp
+index 300c9eb..b25bf21 100644
+--- a/xbmc/utils/AMLUtils.cpp
++++ b/xbmc/utils/AMLUtils.cpp
+@@ -181,7 +181,7 @@ void aml_set_audio_passthrough(bool passthrough)
+ {
+   if (  aml_present()
+     &&  aml_get_device_type() != AML_DEVICE_TYPE_UNKNOWN
+-    &&  aml_get_device_type() <= AML_DEVICE_TYPE_M8)
++    &&  aml_get_device_type() <= AML_DEVICE_TYPE_M8B)
+   {
+     // m1 uses 1, m3 and above uses 2
+     int raw = aml_get_device_type() == AML_DEVICE_TYPE_M1 ? 1:2;
