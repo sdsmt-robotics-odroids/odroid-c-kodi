@@ -1,4 +1,4 @@
-%global PRERELEASE a2
+%global PRERELEASE b3
 %global DIRVERSION %{version}
 #global GITCOMMIT Gotham_r2-ge988513
 # use the line below for pre-releases
@@ -8,7 +8,7 @@
 
 Name: odroid-c-%{realname}
 Version: 17.0
-Release: 0.2%{?dist}
+Release: 0.2.1%{?dist}
 Summary: Media center (Modified for ODROID-C)
 
 License: GPLv2+ and GPLv3+ and LGPLv2+ and BSD and MIT
@@ -421,12 +421,10 @@ fi
 %python_sitelib/kodi
 %dir %{_datadir}/pixmaps/kodi
 %{_datadir}/pixmaps/kodi/*.png
-%{_bindir}/kodi-j2meremote
 %{_bindir}/kodi-ps3d
 %{_bindir}/kodi-ps3remote
 %{_bindir}/kodi-send
 %{_bindir}/kodi-wiiremote
-%{_mandir}/man1/kodi-j2meremote.1.gz
 %{_mandir}/man1/kodi-ps3remote.1.gz
 %{_mandir}/man1/kodi-send.1.gz
 %{_mandir}/man1/kodi-standalone.1.gz
@@ -438,6 +436,9 @@ fi
 
 
 %changelog
+* Wed Oct 19 2016 Scott K Logan <logans@cottsay.net> - 17.0-0.2.1
+- Kodi 17.0 beta 3
+
 * Sun Oct 16 2016 Scott K Logan <logans@cottsay.net>
 - Reconfigure package for Hardkernel ODROID-C
 
