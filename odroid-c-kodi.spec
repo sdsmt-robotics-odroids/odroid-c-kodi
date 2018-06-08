@@ -4,6 +4,9 @@
 # use the line below for pre-releases
 #global DIRVERSION %{version}%{PRERELEASE}
 %global _hardened_build 1
+%global realname kodi
+%global variant odroid-c-
+%global gitmd5 9ef512edb0a306d62cc0c232781c7d7c
 
 # We support hte following options:
 # --with,
@@ -21,9 +24,12 @@
 %global _with_libcec 1
 %global _with_external_ffmpeg 1
 %global _with_wayland 0
+%global _with_amcodec 1
+%global _with_neon 1
+%global _with_x11 1
 %endif
 
-Name: kodi
+Name: %{variant}%{realname}
 Version: 17.6
 Release: 9%{?dist}
 Summary: Media center
@@ -33,7 +39,7 @@ License: GPLv2+ and GPLv3+ and LGPLv2+ and BSD and MIT
 # Some supporting libraries use the LGPL / BSD / MIT license
 Group: Applications/Multimedia
 URL: http://www.kodi.tv/
-Source0: %{name}-%{DIRVERSION}-patched.tar.xz
+Source0: http://pkgs.rpmfusion.org/repo/pkgs/free/%{realname}/%{realname}-%{DIRVERSION}-patched.tar.xz/md5/%{gitmd5}/%{realname}-%{DIRVERSION}-patched.tar.xz
 # kodi contains code that we cannot ship, as well as redundant private
 # copies of upstream libraries that we already distribute.  Therefore
 # we use this script to remove the code before shipping it.
@@ -74,13 +80,20 @@ Patch4: kodi-17.6-array-segfault.patch
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=881536
 Patch5: kodi-17.6-ffmpeg-3.4.patch
 
+# FFmpeg 4.0 support
+Patch6: kodi-17.6-ffmpeg-4.0.patch
+
+Patch10: kodi-17.0-arm-enable-cpu-freq.patch
+Patch11: kodi-17.6-aml-fill-audio-packets-completely-when-resampling-to.patch
+Patch12: kodi-17.6-odroid-c-add-resolutions.patch
+
 %ifarch x86_64 i686
 %global _with_crystalhd 1
 %endif
 
 # Upstream does not support ppc64
 # ARM support is restricted to one GPU per build
-ExclusiveArch: i686 x86_64
+ExclusiveArch: i686 x86_64 armv7hl
 
 BuildRequires: SDL2-devel
 BuildRequires: SDL_image-devel
@@ -189,6 +202,9 @@ BuildRequires: mesa-libEGL-devel
 BuildRequires: mesa-libGLES-devel
 %endif
 BuildRequires: nasm
+%if 0%{?_with_amcodec}
+BuildRequires: odroid-c-aml-libs-devel
+%endif
 BuildRequires: pcre-devel
 BuildRequires: pixman-devel
 BuildRequires: pulseaudio-libs-devel
@@ -227,16 +243,28 @@ Requires: libcrystalhd%{?_isa}
 %endif
 Requires: libmad%{?_isa}
 Requires: librtmp%{?_isa}
+%if 0%{?_with_amcodec}
+Requires: odroid-c-aml-libs%{?_isa}
+%endif
 Requires: shairplay-libs%{?_isa}
 
 # needed when doing a minimal install, see
 # https://bugzilla.rpmfusion.org/show_bug.cgi?id=1844
 Requires: glx-utils
+
+%if ! 0%{?_without_x11}
 Requires: xorg-x11-utils
+%endif
 
 # This is just symlinked to, but needed both at build-time
 # and for installation
 Requires: python2-pillow%{?_isa}
+
+%if 0%{?variant:1}
+Conflicts: %{realname}
+Provides: %{realname} = %{version}-%{release}
+Provides: %{realname}%{?_isa} = %{version}-%{release}
+%endif
 
 
 %description
@@ -245,6 +273,9 @@ Kodi can play a spectrum of of multimedia formats, and featuring playlist,
 audio visualizations, slideshow, and weather forecast functions, together
 third-party plugins.
 
+This version of Kodi has been modified specifically to run on Hardkernel's
+ODROID-C.
+
 
 %package devel
 Summary: Development files needed to compile C programs against kodi
@@ -252,6 +283,12 @@ Group: Development/Libraries
 Requires: %{name}%{?_isa} = %{version}-%{release}
 Obsoletes: xbmc-devel < 14.0
 Provides: xbmc-devel = %{version}
+
+%if 0%{?variant:1}
+Conflicts: %{realname}-devel
+Provides: %{realname}-devel = %{version}-%{release}
+Provides: %{realname}-devel%{?_isa} = %{version}-%{release}
+%endif
 
 %description devel
 Kodi is a free cross-platform media-player jukebox and entertainment hub.
@@ -264,6 +301,12 @@ Summary: Media center event client remotes
 Obsoletes: xbmc-eventclients < 14.0
 Provides: xbmc-eventclients = %{version}
 
+%if 0%{?variant:1}
+Conflicts: %{realname}-eventclients
+Provides: %{realname}-eventclients = %{version}-%{release}
+Provides: %{realname}-eventclients%{?_isa} = %{version}-%{release}
+%endif
+
 %description eventclients
 This package contains support for using Kodi with the PS3 Remote, the Wii
 Remote, a J2ME based remote and the command line xbmc-send utility.
@@ -275,13 +318,19 @@ Requires:	%{name}-devel%{?_isa} = %{version}-%{release}
 Obsoletes: xbmc-eventclients-devel < 14.0
 Provides:  xbmc-eventclients-devel = %{version}
 
+%if 0%{?variant:1}
+Conflicts: %{realname}-eventclients-devel
+Provides: %{realname}-eventclients-devel = %{version}-%{release}
+Provides: %{realname}-eventclients-devel%{?_isa} = %{version}-%{release}
+%endif
+
 %description eventclients-devel
 This package contains the development header files for the eventclients
 library.
 
 
 %prep
-%setup -q -n %{name}-%{DIRVERSION}
+%setup -q -n %{realname}-%{DIRVERSION}
 %patch1 -p1 -b.versioning
 %if %{with dvd}
 cp -p %{SOURCE2} tools/depends/target/libdvdnav/libdvdnav-master.tar.gz
@@ -293,10 +342,14 @@ cp -p %{SOURCE4} tools/depends/target/libdvdcss/libdvdcss-master.tar.gz
 %if 0%{?_with_external_ffmpeg}
 %patch3 -p1 -b.ffmpeg-3.5
 %patch5 -p1 -b.ffmpeg-3.4
+%patch6 -p1 -b.ffmpeg-4.0
 %else
 cp -p %{SOURCE5} tools/depends/target/ffmpeg/
 %endif
 %patch4 -p1 -b.array-segfault
+%patch10 -p1 -b.arm-cpu
+%patch11 -p1 -b.aml-audio
+%patch12 -p1 -b.odroid-c-resolutions
 
 
 %build
@@ -309,6 +362,10 @@ export PYTHON=/usr/bin/python%{python2_version}
 ./configure \
 --prefix=%{_prefix} --bindir=%{_bindir} --includedir=%{_includedir} \
 --libdir=%{_libdir} --datadir=%{_datadir} \
+%if ! 0%{?_with_x11}
+--disable-x11 \
+--disable-xrandr \
+%endif
 --with-lirc-device=/var/run/lirc/lircd \
 %if 0%{?_with_external_ffmpeg}
 --with-ffmpeg=shared \
@@ -339,7 +396,10 @@ export PYTHON=/usr/bin/python%{python2_version}
 --enable-gles \
 --disable-vdpau \
 --disable-vaapi \
-%ifarch armv7hl \
+%if 0%{?_with_amcodec}
+--enable-codec=amcodec \
+%endif
+%if ! 0%{?_with_neon}
 --enable-tegra \
 %endif
 %endif
@@ -443,6 +503,9 @@ fi
 
 
 %changelog
+* Mon May 21 2018 Scott K Logan <logans@cottsay.net>
+- Reconfigure package for Hardkernel ODROID-C
+
 * Thu May 03 2018 Michael Cronenworth <mike@cchtml.com> - 17.6-9
 - Add patch for audio skipping (RFBZ#4882)
 
